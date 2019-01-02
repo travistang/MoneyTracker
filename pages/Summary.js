@@ -18,6 +18,8 @@ import SummaryCard from '../containers/SummaryCard'
 import TransactionRecord from '../components/TransactionRecord'
 import { connect } from 'react-redux'
 import CardHeader from '../components/CardHeader'
+import { getSurplusStringRepresentationForAccount } from '../store'
+
 // The UI of the summary
 class SummaryPage extends React.Component {
   static navigationOptions = {
@@ -36,7 +38,16 @@ class SummaryPage extends React.Component {
         <ScrollView>
           {
             this.props.transactions.map(transaction => (
-              <TransactionRecord transaction={transaction} />
+              <TransactionRecord
+                amountRepresentation={
+                  getSurplusStringRepresentationForAccount(
+                    this.props.transactions,
+                    this.props.accounts,
+                    transaction.account
+                  )
+                }
+                transaction={transaction}
+              />
             ))
           }
         </ScrollView>

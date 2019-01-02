@@ -142,7 +142,15 @@ class AccountsPage extends React.Component {
       ...this.state.form,
       currency: this.state.form.currency.toUpperCase()
     }
-    this.props.addAccount(account)
+    if(!account.isMain) {
+      // do not need to change the main account
+      this.props.addAccount(account)
+    } else {
+      // needs to change the MAIN account
+      const finalAccounts = this.props.accounts.concat(account)
+      setMainAccount(finalAc)
+    }
+
     this.setState({form: this.defaultFormState})
   }
   render() {
@@ -164,6 +172,10 @@ const mapDispatchToProps = dispatch => ({
   addAccount: (account) => dispatch({
     type: Actions.ADD_ACCOUNT,
     account
+  }),
+  setAccount: (accounts) => dispatch({
+    type: Actions.SET_ACCOUNTS,
+    accounts
   })
 })
 export default connect(mapStateToProps, mapDispatchToProps)(AccountsPage)

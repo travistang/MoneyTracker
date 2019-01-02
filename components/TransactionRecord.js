@@ -5,6 +5,7 @@ import {
   Text
 } from 'react-native-paper'
 import { dollarString } from '../config'
+import { getSurplusStringRepresentationForAccount } from '../store'
 export default class TransactionRecord extends React.Component {
   isExpenditure() {
     return this.props.transaction.amount < 0
@@ -32,7 +33,9 @@ export default class TransactionRecord extends React.Component {
           ...style.sideContainer,
           ...this.getTransactionAmountStyle(transaction.amount)
       }}>
-        {dollarString(transaction.amount)}
+        {
+          this.props.amountRepresentation
+        }
       </Text>
     )
   }
