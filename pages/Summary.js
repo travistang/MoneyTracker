@@ -39,14 +39,9 @@ class SummaryPage extends React.Component {
           {
             this.props.transactions.map(transaction => (
               <TransactionRecord
-                amountRepresentation={
-                  getSurplusStringRepresentationForAccount(
-                    this.props.transactions,
-                    this.props.accounts,
-                    transaction.account
-                  )
-                }
+                account={this.props.getAccountByName(transaction.account)}
                 transaction={transaction}
+
               />
             ))
           }
@@ -72,7 +67,10 @@ class SummaryPage extends React.Component {
     )
   }
 }
-const mapStateToProps = state => state
+const mapStateToProps = state => ({
+  ...state,
+  getAccountByName: (name) => ((state.accounts.filter(acc => acc.name === name))[0])
+})
 
 export default connect(mapStateToProps, null)(SummaryPage)
 const style = {

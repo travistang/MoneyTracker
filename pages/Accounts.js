@@ -24,6 +24,7 @@ import {
   getSurplusForAccount,
   getAccountErrorMessage
 } from '../store'
+import { getTextInputComponent } from '../utils'
 import * as Actions from '../actions'
 
 class AccountsPage extends React.Component {
@@ -38,11 +39,21 @@ class AccountsPage extends React.Component {
       name: "",
       currency: ""
     }
+    this.defaultTransferFormState = {
+      name: "",
+      fromAccount: "",
+      toAccount: "",
+      amount: "",
+      multiplier: "",
+    }
 
     this.state = {
       adding: false,
-      form: this.defaultFormState
+      form: this.defaultFormState,
+      transferForm: this.defaultTransferFormState
     }
+
+    this.getTextInputComponent = getTextInputComponent.bind(this,this)
   }
   getAccountCard(accountName) {
     const surplus = getSurplusForAccount(this.props.transactions, accountName)
@@ -58,22 +69,22 @@ class AccountsPage extends React.Component {
       <Card>
         <Card.Content>
           <CardHeader icon="add" text="Add an account" />
-          <TextInput label="Name"
-            mode="outlined"
-            value={this.state.form.name}
-            onChangeText={name => this.setState({
-              form: {...this.state.form, name}
-            })}
-            style={{margin: 8}}
-          />
-        <TextInput label="Currency"
-            mode="outlined"
-            value={this.state.form.currency}
-            onChangeText={currency => this.setState({
-              form: {...this.state.form, currency}
-            })}
-            style={{margin: 8}}
-        />
+        {
+          this.getTextInputComponent(
+            "Name",
+            "name",
+            "form",
+            {mode: "outlined"}
+          )
+        }
+        {
+          this.getTextInputComponent(
+            "Currency",
+            "currency",
+            "form",
+            {mode: "outlined"}
+          )
+        }
         </Card.Content>
         <Card.Actions>
           <Button
@@ -110,6 +121,12 @@ class AccountsPage extends React.Component {
             onPress={() => this.setState({adding: true})}
           >
           Add Account
+          </Button>
+
+          <Button mode="contained"
+            icon="add"
+          >
+          Transfer
           </Button>
         </Card.Content>
       </Card>
