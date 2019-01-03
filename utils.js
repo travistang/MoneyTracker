@@ -1,7 +1,12 @@
 import React from 'react'
 import {
-  TextInput
+  Picker
+} from 'react-native-ui-lib'
+import {
+  TextInput,
+  Button
 } from 'react-native-paper'
+import { colors } from './config'
 
 export const mapArrayToObject = (arr, f) => {
   let res = {}
@@ -33,3 +38,82 @@ export const getTextInputComponent =
     />
    )
  }
+
+export const getPickerComponent =
+  (
+    component,
+    label,
+    fieldName,
+    choices,
+    formName = "form",
+    config = {}
+  ) => {
+    return (
+      <Picker
+        hideUnderline
+        value={component.state[formName][fieldName]}
+        onChange={val => component.setState({
+          [formName]: {
+            ...component.state[formName],
+            [fieldName]:val
+          }
+        })}
+        containerStyle={{margin: 8}}
+        style={{
+          backgroundColor: colors.surface,
+          color: colors.text
+        }}
+        searchStyle={{
+          backgroundColor: colors.surface,
+          color: colors.text,
+          placeholderTextColor: colors.placeholder
+        }}
+        {...config}
+      >
+        {
+          choices.map(choice => (
+            <Picker.Item key={choice} value={choice} label={choice} />
+          ))
+        }
+      </Picker>
+    )
+  }
+
+export const buildForm = (component, questions) => questions.map(
+  question => {
+  switch(question.type) {
+    case "text":
+      return getTextInputComponent(
+        component,
+        question.label,
+        question.fieldName,
+        question.formName,
+        {
+          mode: 'outlined',...question.config
+        }
+      )
+    case "picker":
+      return getPickerComponent(
+        component,
+        question.label,
+        question.fieldName,
+        question.choices,
+        question.formName,
+        question.config
+      )
+    case "number":
+      return getTextInputComponent(
+        component,
+        question.label,
+        question.fieldName,
+        question.formName,
+        {
+          keyboardType: 'numeric',
+          mode: 'outlined',
+          ...question.config
+        }
+      )
+    default:
+      return null // not sure what this is..
+  }
+})

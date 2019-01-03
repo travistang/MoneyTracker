@@ -24,7 +24,7 @@ import {
   getSurplusForAccount,
   getAccountErrorMessage
 } from '../store'
-import { getTextInputComponent } from '../utils'
+import { buildForm, getTextInputComponent } from '../utils'
 import * as Actions from '../actions'
 
 class AccountsPage extends React.Component {
@@ -33,6 +33,11 @@ class AccountsPage extends React.Component {
       <Icon name="email" size={32} color={tintColor} />
     )
   }
+  static Mode = {
+    adding: "adding",
+    transfer: "transfer"
+  }
+
   constructor(props) {
     super(props)
     this.defaultFormState = {
@@ -41,14 +46,14 @@ class AccountsPage extends React.Component {
     }
     this.defaultTransferFormState = {
       name: "",
-      fromAccount: "",
-      toAccount: "",
+      from: "",
+      to: "",
       amount: "",
       multiplier: "",
     }
 
     this.state = {
-      adding: false,
+      mode: null,
       form: this.defaultFormState,
       transferForm: this.defaultTransferFormState
     }
@@ -87,13 +92,13 @@ class AccountsPage extends React.Component {
         }
         </Card.Content>
         <Card.Actions>
-          <Button
-            onPress={() => this.setState({adding: false})}
+          <Button flex
+            onPress={this.toNormalMode.bind(this)}
             icon="remove"
             style={style.actions}>
             Cancel
           </Button>
-          <Button
+          <Button flex
             onPress={this.addAccount.bind(this)}
             mode="contained"
             icon="add"
@@ -105,6 +110,22 @@ class AccountsPage extends React.Component {
       </Card>
     )
   }
+  toAddingMode() {
+    this.setState({
+      mode: AccountsPage.Mode.adding
+    })
+  }
+  toTransferMode() {
+    this.setState({
+      mode: AccountsPage.Mode.transfer
+    })
+  }
+  toNormalMode() {
+    this.setState({
+      mode: null
+    })
+  }
+
   accountListCard() {
     return (
       <Card>
@@ -116,18 +137,85 @@ class AccountsPage extends React.Component {
                 .map(acc => this.getAccountCard(acc))
             }
           </ScrollView>
-          <Button mode="contained"
-            icon="add"
-            onPress={() => this.setState({adding: true})}
-          >
-          Add Account
-          </Button>
+          <Card.Actions>
+            <Button flex
+              icon="email"
+              onPress={this.toAddingMode.bind(this)}
+            >
+            Add Account
+            </Button>
 
-          <Button mode="contained"
-            icon="add"
-          >
-          Transfer
-          </Button>
+            <Button flex
+              icon="refresh"
+              onPress={this.toTransferMode.bind(this)}
+            >
+            Transfer
+            </Button>
+          </Card.Actions>
+        </Card.Content>
+      </Card>
+    )
+  }
+  transferCard() {
+    return (
+      <Card>
+        <Card.Content>
+          <CardHeader icon="transfer" text="Transfer" />
+          {buildForm(
+            this,
+            [
+              {
+                type: "text",
+                label: "Name",
+                fieldName: "name",
+                formName: "transferForm",
+              },
+              {
+                type: "picker",
+                label: "From",
+                fieldName: "from",
+                choices: this.props.accounts,
+                formName: "transferForm",
+              },
+              {
+                type: "picker",
+                label: "To",
+                fieldName: "to",
+                choices: this.props.accounts,
+                formName: "transferForm",
+              },
+              {
+                type: "number",
+                label: "Amount",
+                fieldName: "amount",
+                formName: "transferForm",
+              },
+              {
+                type: "number",
+                label: "Exchange Rate",
+                fieldName: "multiplier",
+                formName: "transferForm",
+              },
+            ]
+          )}
+          <Card.Actions>
+            <Button
+              flex
+              icon="remove"
+              onPress={this.toNormalMode.bind(this)}
+            >
+            Cancel
+            </Button>
+
+            <Button
+              flex
+              mode="contained"
+              icon="transfer"
+              onPress={() => {}}
+            >
+            Transfer
+            </Button>
+          </Card.Actions>
         </Card.Content>
       </Card>
     )
@@ -152,11 +240,16 @@ class AccountsPage extends React.Component {
   render() {
     return (
       <View flex-1 style={style.container}>
-        {this.state.adding?(
-          this.addAccountCard()
-        ):(
-          this.accountListCard()
-        )
+        {(() => {
+            switch(this.state.mode) {
+              case AccountsPage.Mode.adding:
+                return this.addAccountCard()
+              case AccountsPage.Mode.transfer:
+                return this.transferCard()
+              default:
+                return this.accountListCard()
+            }
+          })()
         }
       </View>
 
