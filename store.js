@@ -10,7 +10,6 @@ const initialState = {
   accounts: [
     {
       name: "default",
-      isMain: true,
       currency: "EUR",
     }
   ] // list of accounts
@@ -85,19 +84,6 @@ export function getSurplusStringRepresentationForAccount(transactions, accounts,
 }
 export function getAccountsList(accounts) {
   return accounts.map(acc => acc.name)
-}
-
-export function getMainAccount(accounts) {
-  return accounts.filter(acc => acc.isMain)[0].name
-}
-export function setMainAccount(accounts, accountName) {
-  let newAccountList = accounts.map(acc => ({...acc, isMain: false}))
-  newAccountList.forEach(acc => {
-    if(acc.name === accountName) {
-      acc.isMain = true
-    }
-  })
-  return newAccountList
 }
 
 export function getAccountErrorMessage(existingAccounts, account) {

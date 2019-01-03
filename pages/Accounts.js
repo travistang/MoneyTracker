@@ -22,7 +22,6 @@ import {
 import {
   getAccountsList,
   getSurplusForAccount,
-  getMainAccount,
   getAccountErrorMessage
 } from '../store'
 import * as Actions from '../actions'
@@ -37,7 +36,6 @@ class AccountsPage extends React.Component {
     super(props)
     this.defaultFormState = {
       name: "",
-      isMain: false,
       currency: ""
     }
 
@@ -48,17 +46,14 @@ class AccountsPage extends React.Component {
   }
   getAccountCard(accountName) {
     const surplus = getSurplusForAccount(this.props.transactions, accountName)
-    const isMain = getMainAccount(this.props.accounts) === accountName
     return (
       <List.Item
         title={accountName}
-        left={props => <Text>{surplus}</Text>}
-        right={props => <Text>{isMain?"Main":""}</Text>}
+        right={props => <Text>{surplus}</Text>}
       />
     )
   }
   addAccountCard() {
-    const {isMain} = this.state.form
     return (
       <Card>
         <Card.Content>
@@ -78,14 +73,6 @@ class AccountsPage extends React.Component {
               form: {...this.state.form, currency}
             })}
             style={{margin: 8}}
-        />
-        <List.Item
-          title="Is main account"
-          right={props => (
-            <Checkbox status={isMain? "checked": "unchecked"}
-              onPress={() => this.setState({form: {...this.state.form, isMain: !isMain}})}
-            />
-          )}
         />
         </Card.Content>
         <Card.Actions>
@@ -142,15 +129,7 @@ class AccountsPage extends React.Component {
       ...this.state.form,
       currency: this.state.form.currency.toUpperCase()
     }
-    if(!account.isMain) {
-      // do not need to change the main account
-      this.props.addAccount(account)
-    } else {
-      // needs to change the MAIN account
-      const finalAccounts = this.props.accounts.concat(account)
-      setMainAccount(finalAc)
-    }
-
+    this.props.addAccount(account)
     this.setState({form: this.defaultFormState})
   }
   render() {

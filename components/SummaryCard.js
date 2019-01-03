@@ -10,12 +10,16 @@ import {
 import {
   StyleSheet, Platform,
   Text,
+  ScrollView,
+  Dimensions
 } from 'react-native'
 import {
   View,
   TagsInput,
   Picker
 } from 'react-native-ui-lib'
+import Carousel from 'react-native-snap-carousel'
+
 import CardHeader from './CardHeader'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import { dollarString } from '../config'
@@ -42,12 +46,6 @@ export default class SummaryCard extends React.Component {
       form: this.defaultFormState
     }
   }
-  getSurplus() {
-    return getSurplusForAccount(this.props.transactions, this.props.mainAccount)
-  }
-  isDeficit() {
-    return this.getSurplus() < 0
-  }
 
   addTransaction() {
     const errorMessage = getTransactionErrorMessage(this.state.form)
@@ -68,7 +66,23 @@ export default class SummaryCard extends React.Component {
       form: this.defaultFormState
     })
   }
+  renderAccountSurplusComponent({item,index}) {
+    const acc = item // alias
+    const surplus = this.props.surplus[acc]
+    const isDeficit = surplus < 0
+    return (
+      <View style={style.accountSurplusContainer}>
+        <Text style={style.accountNameText}>
+          {acc}
+        </Text>
+        <Text style={isDeficit?style.deficitText:style.surplusText}>
+          {this.props.surplusStrings[acc]}
+        </Text>
+      </View>
+    )
+  }
   render() {
+    const carouselWidth = Dimensions.get('window').width - 16 * 2 - 8 * 2
     if(this.state.adding) {
       const { isExpenditure } = this.state.form
       return (
@@ -115,7 +129,7 @@ export default class SummaryCard extends React.Component {
               }}
             >
               {
-                getAccountsList(this.props.accounts)
+                this.props.accounts
                   .map(acc => (
                     <Picker.Item key={acc} value={acc} label={acc} />
                   ))
@@ -154,13 +168,13 @@ export default class SummaryCard extends React.Component {
       <Card style={style.container}>
         <Card.Content>
           <CardHeader text="Summary" icon="home" />
-          <Text style={this.isDeficit()?style.deficitText:style.surplusText}>
-            {getSurplusStringRepresentationForAccount(
-              this.props.transactions,
-              this.props.accounts,
-              this.props.mainAccount
-            )}
-          </Text>
+          <Carousel
+            loop
+            data={this.props.accounts}
+            renderItem={this.renderAccountSurplusComponent.bind(this)}
+            itemWidth={carouselWidth}
+            sliderWidth={carouselWidth}
+          />
         </Card.Content>
         <Card.Actions>
           <Button
@@ -196,5 +210,14 @@ const style = StyleSheet.create({
     fontSize: 36,
     textAlign: 'center',
     color: "red"
+  },
+  accountNameText: {
+    color: colors.text,
+    textAlign: 'center',
+    fontWeight: 'bold'
+  },
+  accountSurplusContainer: {
+    backgroundColor: colors.surface,
+    width: Dimensions.get('window').width - 16 * 2 - 16*2
   }
 })
