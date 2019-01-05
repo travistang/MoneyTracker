@@ -4,13 +4,18 @@ import { persistStore, persistReducer, createTransform } from 'redux-persist'
 import storage from 'redux-persist/lib/storage' // defaults to localStorage for web and AsyncStorage for react-native
 import hardSet from 'redux-persist/lib/stateReconciler/hardSet'
 import { dollarString } from './config'
+import { isEmptyString } from './utils'
 
 const initialState = {
   transactions: [], // list of transactions
   accounts: [
     {
-      name: "default",
+      name: "EUR",
       currency: "EUR",
+    },
+    {
+      name: "PLN",
+      currency: "PLN"
     }
   ] // list of accounts
 }
@@ -34,10 +39,28 @@ const reducers = (state = initialState, action) => {
       }
     case Actions.TRANSFER:
       // create two transactions...
-      const { from, to, amount, multiplier } = action
+      const { from, to, amount, multiplier,name } = action,
 
+      // first deduct from 'from'
+        fromTransaction = {
+          name,
+          account: from,
+          amount: -amount,
+          date: new Date().toString()
+        },
+        toTransaction = {
+          name,
+          account: to,
+          amount: multiplier * amount,
+          date: new Date().toString()
+        },
+        transactions = state.transactions
+                .concat(fromTransaction)
+                .concat(toTransaction)
+        alert(JSON.stringify(action))
       return {
-
+        ...state,
+        transactions
       }
     default:
       return state
@@ -72,7 +95,7 @@ const persistedReducer = persistReducer({
 export default function configureStore() {
   const store = createStore(persistedReducer)
   const persistor = persistStore(store)
-  // persistor.purge()
+  persistor.purge()
   return {store, persistor}
 }
 
@@ -88,7 +111,7 @@ export function getAccountByName(accounts, name) {
 export function getSurplusStringRepresentationForAccount(transactions, accounts, name) {
   const account = getAccountByName(accounts,name),
         { currency } = account,
-        surplus = getSurplusForAccount(transactions, name)
+        surplus = getSurplusForAccount(transactions, name).toFixed(2)
   return dollarString(surplus, currency)
 }
 export function getAccountsList(accounts) {
@@ -119,4 +142,16 @@ export function getTransactionErrorMessage(transaction) {
     return "Transaction amount cannot be zero"
 
   return null // no error
+}
+
+export function getTransferErrorMessage(transfer) {
+  alert(JSON.stringify(Object.values(transfer)))
+  if(Object.values(transfer).some(isEmptyString)) {
+    return "Some of the fields are empty!"
+  }
+  const amount = Number(transfer.amount),
+        multiplier = Number(transfer.multiplier)
+  if(!amount || !multiplier) {
+    return "Amount or multiplier is 0 or not a number"
+  }
 }

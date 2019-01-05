@@ -23,9 +23,15 @@ import {
 import {
   getAccountsList,
   getSurplusForAccount,
-  getAccountErrorMessage
+  getAccountErrorMessage,
+  getTransferErrorMessage,
+  getSurplusStringRepresentationForAccount
 } from '../store'
-import { buildForm, getTextInputComponent } from '../utils'
+import {
+  buildForm,
+  getTextInputComponent,
+  mapArrayToObject
+} from '../utils'
 import * as Actions from '../actions'
 
 class AccountsPage extends React.Component {
@@ -62,11 +68,15 @@ class AccountsPage extends React.Component {
     this.getTextInputComponent = getTextInputComponent.bind(this,this)
   }
   getAccountCard(accountName) {
-    const surplus = getSurplusForAccount(this.props.transactions, accountName)
+    const surplus = this.props.surplus[accountName],
+          surplusRepresentation = this.props.surplusStrings[accountName],
+          baseStyle = {fontWeight: 'bold', textAlign: 'center'},
+          surplusStyle = {...baseStyle, color: (surplus < 0)?"red":"green"}
+
     return (
       <List.Item
         title={accountName}
-        right={props => <Text>{surplus}</Text>}
+        right={props => <Text style={surplusStyle}>{surplusRepresentation}</Text>}
       />
     )
   }
@@ -157,6 +167,24 @@ class AccountsPage extends React.Component {
       </Card>
     )
   }
+  transfer() {
+    // retrieve and validate info from the form
+    const errorMessage = getTransferErrorMessage(this.state.transferForm)
+    if(errorMessage) {
+      alert(errorMessage)
+      return
+    }
+
+    let {name, from, to, amount, multiplier} = this.state.transferForm
+    amount = Number(amount)
+    multiplier = Number(multiplier)
+
+    this.props.transfer({name,from,to,amount,multiplier})
+    this.toNormalMode()
+    this.setState({
+      transferForm: this.defaultTransferFormState
+    })
+  }
   transferCard() {
     return (
       <Card style={style.topContainer}>
@@ -175,14 +203,14 @@ class AccountsPage extends React.Component {
                 type: "picker",
                 label: "From",
                 fieldName: "from",
-                choices: this.props.accounts,
+                choices: this.props.accounts.map(acc => acc.name),
                 formName: "transferForm",
               },
               {
                 type: "picker",
                 label: "To",
                 fieldName: "to",
-                choices: this.props.accounts,
+                choices: this.props.accounts.map(acc => acc.name),
                 formName: "transferForm",
               },
               {
@@ -212,7 +240,7 @@ class AccountsPage extends React.Component {
               flex
               mode="contained"
               icon={icons.transfer}
-              onPress={() => {}}
+              onPress={this.transfer.bind(this)}
             >
             Transfer
             </Button>
@@ -236,6 +264,7 @@ class AccountsPage extends React.Component {
       currency: this.state.form.currency.toUpperCase()
     }
     this.props.addAccount(account)
+    this.toNormalMode()
     this.setState({form: this.defaultFormState})
   }
   render() {
@@ -259,7 +288,18 @@ class AccountsPage extends React.Component {
     )
   }
 }
-const mapStateToProps = state => state
+const mapStateToProps = state => ({
+  ...state,
+  surplus: mapArrayToObject(
+    getAccountsList(state.accounts),
+    (acc) => getSurplusForAccount(state.transactions,acc)),
+
+  surplusStrings: mapArrayToObject(
+    getAccountsList(state.accounts),
+    (acc) => getSurplusStringRepresentationForAccount(
+              state.transactions,
+              state.accounts,acc))
+})
 const mapDispatchToProps = dispatch => ({
   addAccount: (account) => dispatch({
     type: Actions.ADD_ACCOUNT,
@@ -268,8 +308,13 @@ const mapDispatchToProps = dispatch => ({
   setAccount: (accounts) => dispatch({
     type: Actions.SET_ACCOUNTS,
     accounts
+  }),
+  transfer: (transfer) => dispatch({
+    ...transfer,
+    type: Actions.TRANSFER
   })
 })
+
 export default connect(mapStateToProps, mapDispatchToProps)(AccountsPage)
 const style = StyleSheet.create({
   container: {

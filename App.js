@@ -26,6 +26,12 @@ ThemeManager.setComponentTheme('View',(props, context) => {
     backgroundColor: Config.colors.background
   }
 })
+ThemeManager.setComponentTheme('Picker', (props, context) => {
+  return {
+    backgroundColor: Config.colors.surface,
+    color: Config.colors.text
+  }
+})
 const theme = {
   ...DefaultTheme,
   roundness: 20,

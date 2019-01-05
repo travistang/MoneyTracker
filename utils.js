@@ -16,6 +16,9 @@ export const mapArrayToObject = (arr, f) => {
   return res
 }
 
+export const isEmptyString = s => {
+  return !s
+}
 // helper function to reduce repetition in creating form components
 export const getTextInputComponent =
   (
@@ -48,6 +51,7 @@ export const getPickerComponent =
     formName = "form",
     config = {}
   ) => {
+    // alert(JSON.stringify(config))
     return (
       <Picker
         hideUnderline
@@ -63,11 +67,7 @@ export const getPickerComponent =
           backgroundColor: colors.surface,
           color: colors.text
         }}
-        searchStyle={{
-          backgroundColor: colors.surface,
-          color: colors.text,
-          placeholderTextColor: colors.placeholder
-        }}
+        useNativePicker
         {...config}
       >
         {
