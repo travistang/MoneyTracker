@@ -19,3 +19,10 @@ export const colors = {
   disabled: 'white',
   placeholder: '#F7F8F6'
 }
+
+export const icons = {
+  transfer: 'refresh',
+  cancel: 'cancel',
+  remove: 'cancel',
+  add: 'add'
+}

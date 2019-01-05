@@ -1,3 +1,4 @@
 export const ADD_TRANSACTION = "ADD_TRANSACTION"
 export const ADD_ACCOUNT = "ADD_ACCOUNT"
 export const SET_ACCOUNTS = "SET_ACCOUNTS"
+export const TRANSFER = "TRANSFER"

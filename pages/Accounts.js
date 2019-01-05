@@ -3,7 +3,8 @@ import { connect } from 'react-redux'
 
 import {
   ScrollView,
-  StyleSheet
+  StyleSheet,
+  Platform
 } from 'react-native'
 
 import {
@@ -11,7 +12,7 @@ import {
   Text
 } from 'react-native-ui-lib'
 import Icon from 'react-native-vector-icons/MaterialIcons'
-import { colors } from '../config'
+import { colors, icons } from '../config'
 import {
   Card,
   Button,
@@ -71,7 +72,7 @@ class AccountsPage extends React.Component {
   }
   addAccountCard() {
     return (
-      <Card>
+      <Card style={style.topContainer}>
         <Card.Content>
           <CardHeader icon="add" text="Add an account" />
         {
@@ -94,14 +95,14 @@ class AccountsPage extends React.Component {
         <Card.Actions>
           <Button flex
             onPress={this.toNormalMode.bind(this)}
-            icon="remove"
+            icon={icons.remove}
             style={style.actions}>
             Cancel
           </Button>
           <Button flex
             onPress={this.addAccount.bind(this)}
             mode="contained"
-            icon="add"
+            icon={icons.add}
             style={style.actions}
           >
             Add Account
@@ -128,7 +129,7 @@ class AccountsPage extends React.Component {
 
   accountListCard() {
     return (
-      <Card>
+      <Card style={style.topContainer}>
         <Card.Content>
           <CardHeader icon="email" text="Accounts" />
           <ScrollView>
@@ -158,9 +159,9 @@ class AccountsPage extends React.Component {
   }
   transferCard() {
     return (
-      <Card>
+      <Card style={style.topContainer}>
         <Card.Content>
-          <CardHeader icon="transfer" text="Transfer" />
+          <CardHeader icon={icons.transfer} text="Transfer" />
           {buildForm(
             this,
             [
@@ -201,7 +202,7 @@ class AccountsPage extends React.Component {
           <Card.Actions>
             <Button
               flex
-              icon="remove"
+              icon={icons.remove}
               onPress={this.toNormalMode.bind(this)}
             >
             Cancel
@@ -210,7 +211,7 @@ class AccountsPage extends React.Component {
             <Button
               flex
               mode="contained"
-              icon="transfer"
+              icon={icons.transfer}
               onPress={() => {}}
             >
             Transfer
@@ -240,6 +241,7 @@ class AccountsPage extends React.Component {
   render() {
     return (
       <View flex-1 style={style.container}>
+        <ScrollView>
         {(() => {
             switch(this.state.mode) {
               case AccountsPage.Mode.adding:
@@ -251,6 +253,7 @@ class AccountsPage extends React.Component {
             }
           })()
         }
+        </ScrollView>
       </View>
 
     )
@@ -271,6 +274,9 @@ export default connect(mapStateToProps, mapDispatchToProps)(AccountsPage)
 const style = StyleSheet.create({
   container: {
     padding: 16
+  },
+  topContainer: {
+    marginTop: (Platform.OS === 'ios')?52:0,
   },
   actions: {
     flex: 1

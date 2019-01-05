@@ -32,6 +32,13 @@ const reducers = (state = initialState, action) => {
         ...state,
         accounts: action.accounts
       }
+    case Actions.TRANSFER:
+      // create two transactions...
+      const { from, to, amount, multiplier } = action
+
+      return {
+
+      }
     default:
       return state
   }
@@ -75,9 +82,11 @@ export function getSurplusForAccount(transactions,name) {
     .filter(t => t.account === name)
     .reduce((a,t) => a + t.amount, 0)
 }
-
+export function getAccountByName(accounts, name) {
+  return ((accounts.filter(acc => acc.name === name))[0])
+}
 export function getSurplusStringRepresentationForAccount(transactions, accounts, name) {
-  const account = accounts.filter(acc => acc.name === name)[0],
+  const account = getAccountByName(accounts,name),
         { currency } = account,
         surplus = getSurplusForAccount(transactions, name)
   return dollarString(surplus, currency)
@@ -97,6 +106,7 @@ export function getAccountErrorMessage(existingAccounts, account) {
     return "Currency cannot be empty"
   return null
 }
+
 export function getTransactionErrorMessage(transaction) {
   if(!transaction.name.trim().length)
     return "Transaction name cannot be empty"

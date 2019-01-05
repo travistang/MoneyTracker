@@ -18,7 +18,10 @@ import SummaryCard from '../containers/SummaryCard'
 import TransactionRecord from '../components/TransactionRecord'
 import { connect } from 'react-redux'
 import CardHeader from '../components/CardHeader'
-import { getSurplusStringRepresentationForAccount } from '../store'
+import {
+  getAccountByName,
+  getSurplusStringRepresentationForAccount
+} from '../store'
 
 // The UI of the summary
 class SummaryPage extends React.Component {
@@ -56,6 +59,7 @@ class SummaryPage extends React.Component {
   render() {
     return (
       <View flex-1 style={style.container}>
+        <ScrollView>
         <SummaryCard />
         <Card style={style.transactionListContainer}>
           <Card.Content>
@@ -63,13 +67,14 @@ class SummaryPage extends React.Component {
             {this.getSummaryMainComponent()}
           </Card.Content>
         </Card>
+        </ScrollView>
       </View>
     )
   }
 }
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   ...state,
-  getAccountByName: (name) => ((state.accounts.filter(acc => acc.name === name))[0])
+  getAccountByName: (name) => getAccountByName(state.accounts,name)
 })
 
 export default connect(mapStateToProps, null)(SummaryPage)
