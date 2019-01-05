@@ -57,7 +57,6 @@ const reducers = (state = initialState, action) => {
         transactions = state.transactions
                 .concat(fromTransaction)
                 .concat(toTransaction)
-        alert(JSON.stringify(action))
       return {
         ...state,
         transactions
@@ -145,7 +144,6 @@ export function getTransactionErrorMessage(transaction) {
 }
 
 export function getTransferErrorMessage(transfer) {
-  alert(JSON.stringify(Object.values(transfer)))
   if(Object.values(transfer).some(isEmptyString)) {
     return "Some of the fields are empty!"
   }
